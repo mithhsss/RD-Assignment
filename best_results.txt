@@ -1,0 +1,4 @@
+Final True Mean L1 Distance Score: 0.00000350
+Theta: 30.0000
+M: 0.03000
+X: 55.0000

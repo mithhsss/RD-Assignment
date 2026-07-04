@@ -16,9 +16,6 @@ data = pd.read_csv("xy_data.csv")
 x_expected = torch.tensor(data['x'].values , dtype=torch.float32)
 y_expected = torch.tensor(data['y'].values , dtype=torch.float32)
 
-t_data = torch.tensor(np.linspace(6,60,len(data)),dtype = torch.float32)
-
-
 # Step 2 here we design the model architecture (The weights)
 
 theta_deg = torch.tensor([25.0],requires_grad=True)
@@ -29,7 +26,7 @@ X = torch.tensor([50.0],requires_grad=True)
 optimizer = optim.LBFGS([theta_deg, M, X], lr=0.1, max_iter=20)
 criterion = nn.L1Loss()
 
-epochs = 1000
+epochs = 150
 print(f"Started optimization for {epochs} epochs using LBFGS")
 
 # here we have the training loop
@@ -37,6 +34,11 @@ print(f"Started optimization for {epochs} epochs using LBFGS")
 for epoch in range(epochs):
     def closure():
         optimizer.zero_grad()
+        with torch.no_grad():
+            theta_deg.clamp_(0.001, 49.999)
+            M.clamp_(-0.049, 0.040)
+            X.clamp_(0.001, 99.999)
+
         theta_rad = theta_deg * (np.pi / 180.0)
 
         # rotate back to get curve coordinates t and z_actual
@@ -54,12 +56,7 @@ for epoch in range(epochs):
 
     optimizer.step(closure)
 
-    # Re-evaluate loss for printing and saving
     with torch.no_grad():
-        theta_deg.clamp_(0.001, 49.999)
-        M.clamp_(-0.049, 0.040)
-        X.clamp_(0.001, 99.999)
-        
         theta_rad = theta_deg * (np.pi / 180.0)
         dx = x_expected - X
         dy = y_expected - 42.0
@@ -76,14 +73,28 @@ print(f"Final Extracted Theta: {theta_deg.item():.4f}")
 print(f"Final Extracted M:     {M.item():.5f}")
 print(f"Final Extracted X:     {X.item():.4f}")
 
+with torch.no_grad():
+    theta_rad = theta_deg * (np.pi / 180.0)
+    dx = x_expected - X
+    dy = y_expected - 42.0
+    t = dx * torch.cos(theta_rad) + dy * torch.sin(theta_rad)
+    z_model = torch.exp(M * torch.abs(t)) * torch.sin(0.3 * t)
+
+    # Transform back to original (x, y) space
+    x_pred = t * torch.cos(theta_rad) - z_model * torch.sin(theta_rad) + X
+    y_pred = 42.0 + t * torch.sin(theta_rad) + z_model * torch.cos(theta_rad)
+
+    real_l1 = torch.mean(
+        torch.abs(x_pred - x_expected) + torch.abs(y_pred - y_expected)
+    )
+
+print(f"\nReal Assignment L1 Score (x-y space): {real_l1.item():.8f}")
+
 # Save the final results to a text file for easy grading
 with open("results.txt", "w") as f:
-    f.write(f"Final L1 Distance Score: {total_loss.item():.4f}\n")
     f.write(f"Theta: {theta_deg.item():.4f}\n")
     f.write(f"M: {M.item():.5f}\n")
     f.write(f"X: {X.item():.4f}\n")
-    
-print("Results saved to results.txt" ) 
-        
+    f.write(f"Real Assignment L1 Score (x-y space): {real_l1.item():.8f}\n")
 
-    
+print("Results saved to results.txt")
