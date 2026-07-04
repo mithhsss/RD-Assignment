@@ -1,1 +1,4 @@
-# results.txt
+Final L1 Distance Score: 1.7908
+Theta: 29.8489
+M: -0.04897
+X: 55.3912
