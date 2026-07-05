@@ -178,10 +178,14 @@ Moving the `.clamp_()` operations directly **inside** the `closure()` loop ensur
 
 ### 3. Loss Metric & Dimensional Scaling
 The assignment defines the L1 loss as:
-$$\text{L1 Distance} = \text{mean}(|x_{\text{pred}} - x_{\text{csv}}| + |y_{\text{pred}} - y_{\text{csv}}|)$$
+$$
+\text{L1 Distance} = \text{mean}(|x_{\text{pred}} - x_{\text{csv}}| + |y_{\text{pred}} - y_{\text{csv}}|)
+$$
 
 In our L-BFGS guide loop, optimizing directly in the rotated coordinate space $z_{\text{actual}}$ works because $z_{\text{model}} - z_{\text{actual}} = 0$ at the true solution. Geometrically, the 2D L1 loss is scaled by:
-$$\text{L1}_{\text{2D}} = |z_{\text{model}} - z_{\text{actual}}| \cdot (|\sin\theta| + |\cos\theta|)$$
+$$
+\text{L1}_{\text{2D}} = |z_{\text{model}} - z_{\text{actual}}| \cdot (|\sin\theta| + |\cos\theta|)
+$$
 
 By computing and logging the **Real L1 Distance** in standard $(x, y)$ space at the end of the script, we guarantee that the final evaluation precisely matches the assignment's scoring criteria without any scaling bias.
 
