@@ -50,71 +50,71 @@ The following is a fit visualisation from this first approach. The curve that is
 
 ---
 
-To de-rotate the Curve, one needs to determine the angle of rotation.The first step in de-rotating the Curve is figuring out the angle of rotation.
+## The Mathematical Solution: De-Rotating the Curve
 
-We investigated the geometry of the curve equations to find a solution to the alignment problem of $t$.
+To solve the alignment issue of $t$, we analyzed the geometry of the curve equations.
 
+### 1. Geometry of the Curve
 Look at the given parametric equations:
 $$x = t \cos\theta - e^{M|t|} \sin(0.3t) \sin\theta + X$$
 $$y = 42 + t \sin\theta + e^{M|t|} \sin(0.3t) \cos\theta$$
 
-Subtracting the offsets ($X$ and $42$), the curve is centered at the origin:
+Subtracting the offsets ($X$ and $42$) centers the curve at the origin:
 $$x - X = t \cos\theta - e^{M|t|} \sin(0.3t) \sin\theta$$
 $$y - 42 = t \sin\theta + e^{M|t|} \sin(0.3t) \cos\theta$$
 
-Now the complicated expression is to be replaced by the simple variable $A$ :
+Now, we replace the complicated exponential/sine term with a simple variable $A$:
 $$A = e^{M|t|} \sin(0.3t)$$
 
-The equations are simplified to:
+This simplifies the equations to:
 $$x - X = t \cos\theta - A \sin\theta$$
 $$y - 42 = t \sin\theta + A \cos\theta$$
 
-The rotation matrix is often easy to recognize.The rotation matrix is sometimes easy to identify.
-
-This is the standard form of 2D rotations.
-When any coordinate (a, b) is rotated by an angle $\theta$ the coordinates of the rotated point are (x', y') where:
+### 2. Identifying the Rotation Matrix
+This pattern perfectly matches the standard 2D rotation equations. 
+When any coordinate $(a, b)$ is rotated by an angle $\theta$, the rotated coordinates $(x', y')$ are given by:
 $$x' = a \cos\theta - b \sin\theta$$
 $$y' = a \sin\theta + b \cos\theta$$
 
 By comparing the two sets of equations:
-
 - $a = t$
 - $b = A = e^{M|t|} \sin(0.3t)$
 
-This shows that the initial point before rotating is $(t, A)!
+This reveals that the original coordinate before rotation was $(t, A)$!
+
 The system can be written in matrix form as:
-The components of this equation are thus $$\begin{bmatrix} x - X \\ y - 42 \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} t \\ A \end{bmatrix}.$$
+$$\begin{bmatrix} x - X \\ y - 42 \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} t \\ A \end{bmatrix}$$
 
-The matrix below is a standard rotation matrix: $\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
+The matrix below is a standard rotation matrix:
+$$\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}$$
 
-### Reverse Rotation (De-rotation)
-
-We can use the inverse rotation (rotating by $-\theta$) to map each individual point in `xy_data.csv` to the correct value of $t$. The inverse of the rotation matrix is:
+### 3. Reverse Rotation (De-Rotation)
+To map each individual point in `xy_data.csv` to its correct value of $t$, we can apply the inverse rotation (rotating by $-\theta$). The inverse rotation matrix is:
 $$\begin{bmatrix} t \\ z_{actual} \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x - X \\ y - 42 \end{bmatrix}$$
 
 This simplifies to:
 $$t = (x - X)\cos\theta + (y - 42)\sin\theta$$
 $$z_{actual} = -(x - X)\sin\theta + (y - 42)\cos\theta$$
 
-This way, the exact parameter $t$ for each individual coordinate $(x, y)$ in the CSV is dynamically calculated.
-We then compare our model $z_{model} = e^{M|t|} \sin(0.3t)$ against $z_{actual}$.
+Using this method, the exact parameter $t$ for each individual coordinate $(x, y)$ in the CSV is dynamically calculated. We then compare our model $z_{model} = e^{M|t|} \sin(0.3t)$ against $z_{actual}$.
 
 ---
 
-A second approach is to use L-BFGS and bounded constraints, as implemented in optimize.py.A second approach is to use L-BFGS (and bounded constraints), as described in optimize.py.
+## Second Approach: L-BFGS & Bounded Constraints (`optimize.py`)
 
-We did this mathematical rotation trick and enhanced `optimize.py` with the following changes:
+Using this mathematical rotation trick, we implemented `optimize.py` with the following enhancements:
 
-We used the L-BFGS optimizer, which is provided by PyTorch, to easily find the minimizer. 2. **Clamping Parameters within Closure**: L-BFGS is a line search method and evaluates the closure several times per iteration, so we shifted the parameter clamping into the loop of the closure function. This helps to prevent any parameter steps outside the range during the intermediate optimization steps.
-The loss is computed in the rotated 1D space and the final loss at the end is the L1 in the 2D space, $|x_{pred}-x_{csv}| + |y_{pred}-y_{csv}|$.
+1. **L-BFGS Optimizer**: We used PyTorch's L-BFGS optimizer to quickly find the minimum.
+2. **Bounds Clamping inside Closure**: Since L-BFGS performs line searches and evaluates the closure multiple times per step, we moved parameter clamping inside the `closure()` loop. This prevents parameters from stepping out of bounds during intermediate optimization steps.
+3. **Loss Computation**: We optimize in the rotated 1D space, and then output the true 2D L1 loss ($|x_{pred}-x_{csv}| + |y_{pred}-y_{csv}|$) at the end.
 
-This has been shown to be effective in avoiding local minima and leads to convergence to:
+This approach successfully avoids local minima, converging to:
 
 - **$\theta$ (Theta)**: $30.0000^\circ$ (which is $\frac{\pi}{6}$ radians)
 - **$M$**: $0.03000$
 - **$X$**: $55.0000$
 - **Real L1 Loss**: **$0.00000316$** (effectively $0$)
 
-This is the final optimized curve fit plotted against the raw data points with perfect convergence:
+Here is the final optimized curve fit plotted against the raw data points showing perfect convergence:
 
 ![Fitted Curve - L-BFGS (Second Approach)](fit_plot.png)
