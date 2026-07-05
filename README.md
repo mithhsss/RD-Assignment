@@ -194,9 +194,11 @@ After all the computations are done, the distance between the cursor and the rea
 ## References & Citations
 
 1. **L-BFGS & Numerical Optimization**:
-   - Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. _SIAM Journal on Scientific Computing_, 16(5), 1190-1208.
-   - Nocedal, J., & Wright, S. J. (2006). _Numerical Optimization_ (2nd ed.). Springer-Verlag.
+   - Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). _A limited memory algorithm for bound constrained optimization_. _SIAM Journal on Scientific Computing, 16_(5), 1190–1208. https://doi.org/10.1137/0916069
+   - Nocedal, J., & Wright, S. J. (2006). _Numerical optimization_ (2nd ed.). Springer. https://doi.org/10.1007/978-0-387-40065-5
+
 2. **Adam Optimizer**:
-   - Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic optimization. _arXiv preprint arXiv:1412.6980_.
+   - Kingma, D. P., & Ba, J. (2015). _Adam: A method for stochastic optimization_. _International Conference on Learning Representations (ICLR)_. https://arxiv.org/abs/1412.6980
+
 3. **PyTorch Framework**:
-   - Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., ... & Chintala, S. (2019). PyTorch: An imperative style, high-performance deep learning library. _Advances in Neural Information Processing Systems_, 32.
+   - Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen, T., Lin, Z., Gimelshein, N., Antiga, L., Desmaison, A., Köpf, A., Yang, E., DeVito, Z., Raison, M., Tejani, A., Chilamkurthy, S., Steiner, B., Fang, L., ... Chintala, S. (2019). _PyTorch: An imperative style, high-performance deep learning library_. In H. Wallach, H. Larochelle, A. Beygelzimer, F. d'Alché-Buc, E. Fox, & R. Garnett (Eds.), _Advances in Neural Information Processing Systems_ (Vol. 32). Curran Associates, Inc. https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html
