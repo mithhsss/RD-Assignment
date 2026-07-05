@@ -85,15 +85,17 @@ This reveals that the original coordinate before rotation was $(t, A)$!
 The system can be written in matrix form as:
 
 $$
-\begin{bmatrix} x - X \\ y - 42 \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} t \\ A \end{bmatrix}
+\begin{bmatrix} x - X \\\\ y - 42 \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\\\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} t \\\\ A \end{bmatrix}
 $$
+
 
 
 The matrix below is a standard rotation matrix:
 
 $$
-\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
+\begin{bmatrix} \cos\theta & -\sin\theta \\\\ \sin\theta & \cos\theta \end{bmatrix}
 $$
+
 
 
 ### 3. Reverse Rotation (De-Rotation)
@@ -101,13 +103,19 @@ $$
 To map each individual point in `xy_data.csv` to its correct value of $t$, we can apply the inverse rotation (rotating by $-\theta$). The inverse rotation matrix is:
 
 $$
-\begin{bmatrix} t \\ z_{actual} \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x - X \\ y - 42 \end{bmatrix}
+\begin{bmatrix} t \\\\ z_{actual} \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta \\\\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x - X \\\\ y - 42 \end{bmatrix}
 $$
 
 
+
 This simplifies to:
-$$t = (x - X)\cos\theta + (y - 42)\sin\theta$$
-$$z_{actual} = -(x - X)\sin\theta + (y - 42)\cos\theta$$
+
+$$
+\begin{aligned}
+t &= (x - X)\cos\theta + (y - 42)\sin\theta \\\\
+z_{actual} &= -(x - X)\sin\theta + (y - 42)\cos\theta
+\end{aligned}
+$$
 
 Using this method, the exact parameter $t$ for each individual coordinate $(x, y)$ in the CSV is dynamically calculated. We then compare our model $z_{model} = e^{M|t|} \sin(0.3t)$ against $z_{actual}$.
 
