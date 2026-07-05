@@ -96,6 +96,8 @@ $$
 $$
 
 
+### 3. Reverse Rotation (De-Rotation)
+
 To map each individual point in `xy_data.csv` to its correct value of $t$, we can apply the inverse rotation (rotating by $-\theta$). The inverse rotation matrix is:
 
 $$
