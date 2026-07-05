@@ -1,5 +1,10 @@
 # Parametric Curve Optimization Using PyTorch Gradient-Based Optimization
-### Name : Kovuri Mithul 
+## Author
+
+**Kovuri Mithul**  
+B.Tech Artificial Intelligence  
+Amrita Vishwa Vidyapeetham, Amaravati
+
 ## Problem Statement
 
 Solve for missing parameters, $\theta$, $M$ and $X$ in a parametric curve equation:
