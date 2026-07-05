@@ -139,3 +139,61 @@ This approach successfully avoids local minima, converging to:
 Here is the final optimized curve fit plotted against the raw data points showing perfect convergence:
 
 ![Fitted Curve - L-BFGS (Second Approach)](fit_plot.png)
+
+---
+
+## Repository Structure
+
+The workspace is structured as follows:
+
+```text
+AI_rd/
+├── optimize.py          # Core implementation (PyTorch L-BFGS, rotation trick)
+├── code.py              # First approach (PyTorch Adam with linspace)
+├── plot_data.py         # Utility script to plot raw data points
+├── xy_data.csv          # Input data (1500 points)
+├── results.txt          # Final grading parameters and score
+├── requirements.txt     # Python package requirements
+├── fit_plot.png         # Final curve fit image (Second Approach)
+├── code_fit_plot.png    # Misaligned fit image (First Approach)
+└── README.md            # Project documentation
+```
+
+---
+
+## Technical Analysis
+
+### 1. Optimization Algorithm Comparison
+* **Adam (First-order Stochastic Gradient Descent)**: Adam updates parameters based on moving averages of gradients. In `code.py`, the optimizer was trapped in local minima (L1 loss $\approx 25.0$) due to the non-convex nature of the parametric equations (specifically, high-frequency oscillations from the $\sin(0.3t)$ term and scaling from $e^{M|t|}$).
+* **L-BFGS (Quasi-Newton Second-order Line Search)**: L-BFGS estimates the inverse Hessian matrix of second derivatives to choose search directions. In `optimize.py`, L-BFGS was much faster and successfully converged to the global minimum. Its line search mechanism dynamically adjusted steps along the curvature, enabling high-precision parameter estimation.
+
+### 2. Constraint Clamping inside the Closure
+A key technical issue solved was constraint enforcement. In PyTorch's L-BFGS implementation, the optimizer performs internal line searches, calling the `closure()` block multiple times per step.
+If parameters are clamped *outside* the closure loop:
+1. L-BFGS steps parameters outside their bounds.
+2. The closure evaluates gradients at out-of-bounds coordinates.
+3. The optimizer gets confused, breaks gradient trajectories, and diverges.
+
+Moving the `.clamp_()` operations directly **inside** the `closure()` loop ensures that L-BFGS always evaluates bounds-compliant, consistent states, resulting in steady and stable convergence.
+
+### 3. Loss Metric & Dimensional Scaling
+The assignment defines the L1 loss as:
+$$\text{L1 Distance} = \text{mean}(|x_{\text{pred}} - x_{\text{csv}}| + |y_{\text{pred}} - y_{\text{csv}}|)$$
+
+In our L-BFGS guide loop, optimizing directly in the rotated coordinate space $z_{\text{actual}}$ works because $z_{\text{model}} - z_{\text{actual}} = 0$ at the true solution. Geometrically, the 2D L1 loss is scaled by:
+$$\text{L1}_{\text{2D}} = |z_{\text{model}} - z_{\text{actual}}| \cdot (|\sin\theta| + |\cos\theta|)$$
+
+By computing and logging the **Real L1 Distance** in standard $(x, y)$ space at the end of the script, we guarantee that the final evaluation precisely matches the assignment's scoring criteria without any scaling bias.
+
+---
+
+## References & Citations
+
+1. **L-BFGS & Numerical Optimization**:
+   * Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. *SIAM Journal on Scientific Computing*, 16(5), 1190-1208.
+   * Nocedal, J., & Wright, S. J. (2006). *Numerical Optimization* (2nd ed.). Springer-Verlag.
+2. **Adam Optimizer**:
+   * Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic optimization. *arXiv preprint arXiv:1412.6980*.
+3. **PyTorch Framework**:
+   * Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., ... & Chintala, S. (2019). PyTorch: An imperative style, high-performance deep learning library. *Advances in Neural Information Processing Systems*, 32.
+
